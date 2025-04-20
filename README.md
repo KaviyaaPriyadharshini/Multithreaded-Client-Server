@@ -1,140 +1,158 @@
-Multi-Threaded Client-Server Chat Application (TCP)
-Overview
-This project is a multi-threaded client-server chat application implemented in C for Unix/Linux systems using TCP sockets. It allows multiple clients to connect to a centralized server, view other connected users (with their availability status), and establish private chat sessions. Clients can communicate through the server, and all interactions, including user connections and session management, are handled reliably.
+# Multi-Threaded Client-Server Chat Application (C Programming, TCP Sockets)
 
-Clients can chat even from different machines on the same network.
+## Overview
 
-Demo
-A sample demo showing multiple clients interacting with the server and initiating chat sessions.
+This project is a **multi-threaded client-server chat application** developed in **C** for **Unix/Linux systems**.  
+It allows multiple clients to connect to a central server and engage in **real-time one-on-one chat sessions**.  
+The server maintains the **connection status** (`FREE`, `BUSY`) of each client and ensures smooth pairing for chats.
 
-(Optional: You can add a GIF/screen recording link here.)
+The project demonstrates core concepts of:
+- TCP socket programming
+- Multithreading
+- Client-server architecture
+- Real-time communication systems
 
-Features
-Concurrent Client Connections via multi-threaded server handling
+---
 
-Real-Time User Status Tracking (FREE / BUSY)
+## Features
 
-User ID Management for uniquely identifying clients
+- Handles **multiple clients** simultaneously using threads.
+- **Client List** management with status (`FREE`, `BUSY`).
+- Clients can **request** to chat with other available clients.
+- **One-on-one** chat sessions are supported.
+- **Graceful session termination** with a "goodbye" message.
+- **Persistent server** that runs indefinitely.
+- **Proper client disconnection** using `~quit` command.
+- Server logs important events like connection, disconnection, chat start, and end.
 
-Chat Matching by connecting with other free users
+---
 
-Graceful Chat Session Termination via "goodbye" message
+## Prerequisites
 
-Persistent Connection: Clients stay connected to the server even after ending a chat
+- Unix/Linux operating system
+- GCC compiler installed (`gcc`)
+- Basic understanding of C programming, sockets, and terminal commands
 
-Safe Disconnection with the ~quit command
+---
 
-Server Logging of user connections, chat sessions, and disconnections
+## Project Structure
 
-Commands-Based Interface for intuitive interaction
-
-Server runs indefinitely, handling new and returning clients
-
-Prerequisites
-Unix/Linux operating system
-
-gcc compiler
-
-Basic understanding of terminal operations
-
-Networking setup (for running across different machines)
-
-How to Run
-1. Start the Server
-Open a terminal and run the following commands:
-
-bash
-Copy
-Edit
-gcc server.c -o server
-./server <PORT>
-Replace <PORT> with the desired port number (e.g., 1235).
-
-Example:
-
-bash
-Copy
-Edit
-./server 1235
-The server will start and listen indefinitely for incoming client connections.
-
-2. Start the Clients
-Open multiple terminals (one for each client) and run the following commands in each:
-
-bash
-Copy
-Edit
-gcc client.c -o client
-./client <SERVER-IP-ADDRESS> <PORT>
-Replace:
-
-<SERVER-IP-ADDRESS> with the IP address of the server machine (e.g., 10.10.75.20)
-
-<PORT> with the server port number.
-
-Example:
-
-bash
-Copy
-Edit
-./client 10.10.75.20 1235
-Usage Instructions
-Once connected, clients can use the following commands:
-
-
-Command	Description
-~list	List all connected users and their status (FREE/BUSY).
-~connect_to_<userid>	Request to start a chat session with a user by their User ID (e.g., ~connect_to_03).
-~stop	End an ongoing chat session.
-~quit	Disconnect from the server and exit.
-~my_id	Display your unique User ID assigned by the server.
-<message>	Send a message during an active chat session (Max 200 characters, no spaces allowed).
-⚡ Note: Chatting happens alternately. You can receive a message only after sending one.
-
-Communication Protocol
-All messages are routed through the server.
-
-No direct client-to-client socket is created (centralized communication model).
-
-Chat session ends when either client sends a goodbye message.
-
-After ending a chat, both clients return to FREE state and can initiate new sessions.
-
-To fully disconnect from the server, use the ~quit command.
-
-Important Notes
-Always use ~quit to disconnect. Forcefully closing the terminal without proper logout may leave dangling sessions on the server.
-
-Message size must be < 200 characters and should not contain spaces.
-
-If the server or client behaves unexpectedly, restart both the server and the clients.
-
-The server is designed to run continuously, even when clients connect/disconnect multiple times.
-
-Directory Structure
-bash
-Copy
-Edit
+```
 .
-├── server.c      # Server-side source code
-├── client.c      # Client-side source code
-├── README.md     # This documentation file
-Future Enhancements (Optional)
-Encryption of messages using SSL/TLS.
+├── server.c       # Server-side code (handles multiple clients)
+├── client.c       # Client-side code (connects to server, handles chat)
+├── README.md      # Project documentation
+```
 
-Broadcasting messages to multiple users.
+---
 
-GUI client implementation using GTK+ or Qt.
+## How to Run
 
-Authentication system (username/password).
+### 1. Compile and Run the Server
 
-Automatic reconnection for network failures.
+Open a terminal window for the server and run:
 
-Contact
-For queries, suggestions, or contributions:
+```bash
+gcc server.c -o server
+./server <PORT_NUMBER>
+```
+Example:
 
-📩 kaviyaakpdaskc@gmail.com
+```bash
+./server 1235
+```
 
-License
-This project is developed as an academic exercise for learning purposes.
-Feel free to use and modify it.
+The server starts listening for client connections.
+
+---
+
+### 2. Compile and Run the Clients
+
+Open **separate terminal windows** for each client.
+
+In each client terminal:
+
+```bash
+gcc client.c -o client
+./client <SERVER_IP_ADDRESS> <PORT_NUMBER>
+```
+Example:
+
+```bash
+./client 127.0.0.1 1235
+```
+*(Replace `127.0.0.1` with your server's IP address if running on different machines.)*
+
+---
+
+## Client Commands
+
+| Command | Description |
+|:--------|:------------|
+| `~list` | View list of active users and their status (FREE/BUSY) |
+| `~my_id` | Display your assigned user ID |
+| `~connect_to_<user_id>` | Connect to a specific user by user ID |
+| `~stop` | End the current chat session |
+| `~quit` | Disconnect from the server and exit |
+| `<message>` | Send a message during a chat session (No spaces, max 200 characters) |
+
+---
+
+## Chat Session Details
+
+- Clients must be `FREE` to initiate or accept a chat.
+- Messages are sent **one at a time alternately** between two clients.
+- Messages must **NOT contain spaces** and must be **less than 200 characters**.
+- A **"goodbye"** message from either client **ends the chat session**.
+- After ending a chat, clients return to the `FREE` status, ready for new sessions.
+- The client must use `~quit` to **properly disconnect** from the server.
+
+---
+
+## Important Notes
+
+- Always use `~quit` to disconnect from the server; otherwise, the server might encounter errors.
+- If a client disconnects forcefully (e.g., Ctrl+C), the server may misbehave and need restarting.
+- Only two clients can chat at a time. The server ensures proper matching.
+- The server runs forever and logs events like user connections, disconnections, and session creations.
+
+---
+
+## Example Usage
+
+```bash
+Client 1> ~my_id
+Your User ID: 01
+
+Client 2> ~list
+Available Users:
+[01] - FREE
+
+Client 2> ~connect_to_01
+Requesting chat with User 01...
+
+Client 1> hello_user_02_how_are_you
+Client 2> I_am_good_thank_you
+
+Client 1> goodbye
+Chat session ended.
+```
+
+---
+
+## Troubleshooting
+
+| Issue | Solution |
+|:------|:---------|
+| Server crashes or hangs | Restart the server and reconnect clients |
+| Client cannot connect | Check IP address, port number, and server availability |
+| Server not receiving messages | Ensure clients are sending messages correctly without spaces |
+
+---
+
+## License
+
+This project is intended for **academic and educational purposes only**.  
+All rights reserved by the developer.
+
+---
